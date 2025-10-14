@@ -1,5 +1,6 @@
 #include "scene_node.hpp"
 #include "entity.hpp"
+#include "aircraft.hpp"
 
 SceneNode::SceneNode():m_children(), m_parent(nullptr)
 {
@@ -66,6 +67,8 @@ void SceneNode::draw(sf::RenderTarget& target, sf::RenderStates states) const
 	DrawCurrent(target, states);
 	DrawChildren(target, states);
 }
+
+
 
 void SceneNode::DrawCurrent(sf::RenderTarget& target, sf::RenderStates states) const
 {
