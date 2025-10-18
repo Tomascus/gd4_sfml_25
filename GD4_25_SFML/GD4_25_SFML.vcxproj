@@ -130,20 +130,39 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="aircraft.cpp" />
+    <ClCompile Include="command.cpp" />
+    <ClCompile Include="command_queue.cpp" />
+    <ClCompile Include="entity.cpp" />
     <ClCompile Include="game.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="player.cpp" />
     <ClCompile Include="scene_node.cpp" />
+    <ClCompile Include="sprite_node.cpp" />
     <ClCompile Include="texture_holder.cpp" />
     <ClCompile Include="utility.cpp" />
+    <ClCompile Include="world.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="action.hpp" />
+    <ClInclude Include="aircraft.hpp" />
+    <ClInclude Include="aircraft_type.hpp" />
+    <ClInclude Include="command.hpp" />
+    <ClInclude Include="command_queue.hpp" />
     <ClInclude Include="constants.hpp" />
+    <ClInclude Include="entity.hpp" />
     <ClInclude Include="game.hpp" />
+    <ClInclude Include="player.hpp" />
+    <ClInclude Include="receiver_categories.hpp" />
     <ClInclude Include="resource_holder.hpp" />
+    <ClInclude Include="resource_identifiers.hpp" />
+    <ClInclude Include="scene_layers.hpp" />
     <ClInclude Include="scene_node.hpp" />
+    <ClInclude Include="sprite_node.hpp" />
     <ClInclude Include="texture_holder.hpp" />
     <ClInclude Include="texture_id.hpp" />
     <ClInclude Include="utility.hpp" />
+    <ClInclude Include="world.hpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="resource_holder.inl" />

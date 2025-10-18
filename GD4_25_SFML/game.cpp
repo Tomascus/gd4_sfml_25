@@ -31,7 +31,7 @@ void Game::ProcessInput()
 
 	while (const std::optional event = m_window.pollEvent())
 	{
-		m_player.HandleEvent(event, commands);
+		m_player.HandleEvent(*event, commands);
 
 		if (event->is<sf::Event::Closed>())
 		{

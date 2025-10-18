@@ -4,6 +4,7 @@
 #include "scene_node.hpp"
 #include "scene_layers.hpp"
 #include "aircraft.hpp"
+#include "command_queue.hpp"
 
 class World
 {
@@ -12,9 +13,13 @@ public:
 	void Update(sf::Time dt);
 	void Draw();
 
+	CommandQueue& GetCommandQueue();
+
 private:
 	void LoadTextures();
 	void BuildScene();
+	void AdaptPlayerVelocity();
+	void AdaptPlayerPosition();
 
 private:
 	sf::RenderWindow& m_window;
@@ -26,5 +31,7 @@ private:
 	sf::Vector2f m_spawn_position;
 	float m_scroll_speed;
 	Aircraft* m_player_aircraft;
+
+	CommandQueue m_command_queue;
 };
 

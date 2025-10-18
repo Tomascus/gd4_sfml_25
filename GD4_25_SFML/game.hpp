@@ -3,6 +3,7 @@
 #include "resource_holder.hpp"
 #include "texture_id.hpp"
 #include "world.hpp"
+#include "player.hpp"
 
 class Game
 {

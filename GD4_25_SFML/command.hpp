@@ -1,6 +1,10 @@
 #pragma once
 #include <functional>
-#include "scene_node.hpp"
+#include "receiver_categories.hpp"
+#include <SFML/System/Time.hpp>
+
+class SceneNode;
+
 struct Command
 {
 	Command();
@@ -18,6 +22,6 @@ DerivedAction(Function fn)
 			assert(dynamic_cast<GameObject*>(&node) != nullptr);
 			//Downcast and invoke the function
 			fn(static_cast<GameObject&>(node), dt);
-		}
+		};
 }
 
