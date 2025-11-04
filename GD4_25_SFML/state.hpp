@@ -4,7 +4,8 @@
 #include "player.hpp"
 #include <SFML/Graphics/RenderWindow.hpp>
 #include "stateid.hpp"
-#include "statestack.hpp"
+
+class StateStack;
 
 
 class State

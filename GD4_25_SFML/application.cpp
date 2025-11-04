@@ -1,12 +1,17 @@
 #include "application.hpp"
 #include "constants.hpp"
 #include "fontid.hpp"
+#include "game_state.hpp"
+#include "title_state.hpp"
+#include "menu_state.hpp"
+#include "pause_state.hpp"
 
 Application::Application() : m_window(sf::VideoMode({ 1024, 768 }), "States", sf::Style::Close), m_stack(State::Context(m_window, m_textures, m_fonts, m_player))
 {
 	m_window.setKeyRepeatEnabled(false);
 	m_fonts.Load(FontID::kMain, "Media/Fonts/Sansation.ttf");
-	m_textures.Load(TextureID::kEagle, "Media/Textures/TitleScreen.png");
+	m_textures.Load(TextureID::kEagle, "Media/Textures/Eagle.png");
+	m_textures.Load(TextureID::kTitleScreen, "Media/Textures/TitleScreen.png");
 
 	RegisterStates();
 	m_stack.PushState(StateID::kTitle);

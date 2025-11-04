@@ -2,12 +2,22 @@
 #pragma once
 #include "resource_holder.hpp"
 #include <string>
+#include <SFML/Graphics/Font.hpp>
 
 template<typename Identifier, typename Resource>
 void ResourceHolder<Identifier, Resource>::Load(const Identifier id, const std::string& filename)
 {
+    bool loaded = false;
     std::unique_ptr<Resource> resource(new Resource());
-    if (!resource->loadFromFile(filename))
+    if constexpr (std::is_same_v<Resource, sf::Font>)
+    {
+        loaded = resource->openFromFile(filename);
+    }
+    else
+    {
+        loaded = resource->loadFromFile(filename);
+    }
+    if(!loaded)
     {
         throw std::runtime_error("ResourceHolder::Load failed to load " + filename);
     }

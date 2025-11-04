@@ -2,6 +2,7 @@
 #include "texture_id.hpp"
 #include "resource_holder.hpp"
 #include <SFML/Graphics/Font.hpp>
+#include "fontID.hpp"
 
 namespace sf
 {

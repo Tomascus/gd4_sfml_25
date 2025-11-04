@@ -138,12 +138,15 @@
     <ClCompile Include="game.cpp" />
     <ClCompile Include="game_state.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="menu_state.cpp" />
+    <ClCompile Include="pause_state.cpp" />
     <ClCompile Include="player.cpp" />
     <ClCompile Include="scene_node.cpp" />
     <ClCompile Include="sprite_node.cpp" />
     <ClCompile Include="state.cpp" />
     <ClCompile Include="statestack.cpp" />
     <ClCompile Include="texture_holder.cpp" />
+    <ClCompile Include="title_state.cpp" />
     <ClCompile Include="utility.cpp" />
     <ClCompile Include="world.cpp" />
   </ItemGroup>
@@ -159,6 +162,9 @@
     <ClInclude Include="fontID.hpp" />
     <ClInclude Include="game.hpp" />
     <ClInclude Include="game_state.hpp" />
+    <ClInclude Include="menu_options.hpp" />
+    <ClInclude Include="menu_state.hpp" />
+    <ClInclude Include="pause_state.hpp" />
     <ClInclude Include="player.hpp" />
     <ClInclude Include="receiver_categories.hpp" />
     <ClInclude Include="resource_holder.hpp" />
@@ -172,6 +178,7 @@
     <ClInclude Include="statestack.hpp" />
     <ClInclude Include="texture_holder.hpp" />
     <ClInclude Include="texture_id.hpp" />
+    <ClInclude Include="title_state.hpp" />
     <ClInclude Include="utility.hpp" />
     <ClInclude Include="world.hpp" />
   </ItemGroup>

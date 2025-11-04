@@ -1,4 +1,5 @@
 #include "state.hpp"
+#include "statestack.hpp"
 
 State::State(StateStack& stack, Context context) : m_stack(&stack), m_context(context)
 {

@@ -1,7 +1,17 @@
 #include "Game.hpp"
+#include "application.hpp"
+#include <iostream>
 
 int main()
 {
-	Game game;
-	game.Run();
+	try
+	{
+		Application app;
+		app.Run();
+	}
+	catch (std::runtime_error& e)
+	{
+		std::cout << e.what() << std::endl;
+	}
+	
 }

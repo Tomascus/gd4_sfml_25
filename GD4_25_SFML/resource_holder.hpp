@@ -1,5 +1,6 @@
 #pragma once
 #include <map>
+#include <string>
 
 template<typename Identifier, typename Resource>
 class ResourceHolder
