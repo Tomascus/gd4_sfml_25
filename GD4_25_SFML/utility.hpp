@@ -7,5 +7,6 @@ public:
 	static void CentreOrigin(sf::Sprite& sprite);
 	static void CentreOrigin(sf::Text& text);
 	static std::string toString(sf::Keyboard::Scancode key);
+	static double toRadians(double degrees);
 };
 

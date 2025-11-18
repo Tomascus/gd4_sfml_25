@@ -1,4 +1,6 @@
 #include "Utility.hpp"
+#define _USE_MATH_DEFINES
+#include <math.h>
 
 sf::Vector2f Utility::Normalise(const sf::Vector2f& source)
 {
@@ -29,4 +31,9 @@ void Utility::CentreOrigin(sf::Text& text)
 std::string Utility::toString(sf::Keyboard::Scancode key)
 {
     return sf::Keyboard::getDescription(key);
+}
+
+double Utility::toRadians(double degrees)
+{
+    return (degrees * M_PI)/180;
 }

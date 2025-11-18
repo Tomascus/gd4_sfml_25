@@ -1,4 +1,3 @@
-#include "Game.hpp"
 #include "application.hpp"
 #include <iostream>
 
