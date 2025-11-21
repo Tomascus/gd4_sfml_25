@@ -9,7 +9,7 @@
 class World
 {
 public:
-	explicit World(sf::RenderWindow& window, FontHolder* font);
+	explicit World(sf::RenderWindow& window, FontHolder& font);
 	void Update(sf::Time dt);
 	void Draw();
 
@@ -44,7 +44,7 @@ private:
 	sf::RenderWindow& m_window;
 	sf::View m_camera;
 	TextureHolder m_textures;
-	FontHolder* m_fonts;
+	FontHolder& m_fonts;
 	SceneNode m_scene_graph;
 	std::array<SceneNode*, static_cast<int>(SceneLayers::kLayerCount)> m_scene_layers;
 	sf::FloatRect m_world_bounds;

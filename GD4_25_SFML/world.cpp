@@ -4,7 +4,7 @@
 #include "state.hpp"
 #include <SFML/System/Angle.hpp>
 
-World::World(sf::RenderWindow& window, FontHolder* font)
+World::World(sf::RenderWindow& window, FontHolder& font)
 	: m_window(window)
 	, m_camera(window.getDefaultView())
 	, m_textures()
