@@ -17,8 +17,8 @@ public:
 	void Destroy();
 	virtual bool IsDestroyed() const;
 
-private:
-	virtual void UpdateCurrent(sf::Time dt);
+protected:
+	virtual void UpdateCurrent(sf::Time dt, CommandQueue& commands) override;
 
 private:
 	sf::Vector2f m_velocity;

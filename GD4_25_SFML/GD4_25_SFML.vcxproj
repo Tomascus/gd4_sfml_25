@@ -176,6 +176,7 @@
     <ClInclude Include="menu_state.hpp" />
     <ClInclude Include="pause_state.hpp" />
     <ClInclude Include="player.hpp" />
+    <ClInclude Include="projectile_type.hpp" />
     <ClInclude Include="receiver_categories.hpp" />
     <ClInclude Include="resource_holder.hpp" />
     <ClInclude Include="resource_identifiers.hpp" />

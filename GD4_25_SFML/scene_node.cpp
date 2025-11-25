@@ -62,7 +62,16 @@ void SceneNode::OnCommand(const Command& command, sf::Time dt)
 	}
 }
 
-void SceneNode::UpdateCurrent(sf::Time dt)
+sf::FloatRect SceneNode::GetBoundingRect() const
+{
+	return sf::FloatRect();
+}
+
+void SceneNode::DrawBoundingRect(sf::RenderTarget& target, sf::RenderStates states, sf::FloatRect& rect) const
+{
+}
+
+void SceneNode::UpdateCurrent(sf::Time dt, CommandQueue& commands)
 {
 	// Do nothing here
 }
@@ -102,5 +111,15 @@ void SceneNode::DrawChildren(sf::RenderTarget& target, sf::RenderStates states) 
 unsigned int SceneNode::GetCategory() const
 {
 	return static_cast<unsigned int>(ReceiverCategories::kScene);
+}
+
+bool SceneNode::IsMarkedForRemoval() const
+{
+	return IsDestroyed();
+}
+
+bool SceneNode::IsDestroyed() const
+{
+	return false;
 }
 

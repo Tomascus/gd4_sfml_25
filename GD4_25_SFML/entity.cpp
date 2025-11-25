@@ -1,4 +1,5 @@
 #include "Entity.hpp"
+#include "command_queue.hpp"
 
 Entity::Entity(int hitpoints) :m_hitpoints(hitpoints)
 {
@@ -58,7 +59,7 @@ bool Entity::IsDestroyed() const
 	return m_hitpoints <= 0;
 }
 
-void Entity::UpdateCurrent(sf::Time dt)
+void Entity::UpdateCurrent(sf::Time dt, CommandQueue& commands)
 {
 	move(m_velocity * dt.asSeconds());
 }

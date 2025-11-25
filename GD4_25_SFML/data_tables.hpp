@@ -1,6 +1,7 @@
 #pragma once
 #include "texture_id.hpp"
 #include <SFML/System/Time.hpp>
+#include <functional>
 
 struct Direction
 {
@@ -20,7 +21,22 @@ struct AircraftData
 	std::vector<Direction> m_directions;
 };
 
+struct ProjectileData
+{
+	int m_damage;
+	float m_speed;
+	TextureID m_texture;
+};
+
+struct PickupData
+{
+	std::function<void(Aircraft&)> m_action;
+	TextureID m_texture;
+};
+
 std::vector<AircraftData> InitializeAircraftData();
+std::vector<ProjectileData> InitializeProjectileData();
+std::vector<PickupData> InitializePickupData();
 
 
 

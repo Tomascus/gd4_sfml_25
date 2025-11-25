@@ -1,6 +1,17 @@
 #include "Utility.hpp"
 #define _USE_MATH_DEFINES
 #include <math.h>
+#include <random>
+
+namespace
+{
+    std::default_random_engine CreateRandomEngine()
+    {
+        auto seed = static_cast<unsigned long>(std::time(nullptr));
+        return std::default_random_engine(seed);
+    }
+    auto RandomEngine = CreateRandomEngine()
+}
 
 sf::Vector2f Utility::Normalise(const sf::Vector2f& source)
 {
@@ -36,4 +47,15 @@ std::string Utility::toString(sf::Keyboard::Scancode key)
 double Utility::toRadians(double degrees)
 {
     return (degrees * M_PI)/180;
+}
+
+double Utility::ToDegrees(double angle)
+{
+    return angle*(180/M_PI);
+}
+
+int Utility::RandomInt(int exclusive_max)
+{
+    std::uniform_int_distribution<> distr(0, exclusive_max - 1);
+    return distr(RandomEngine);
 }

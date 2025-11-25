@@ -8,5 +8,12 @@ enum class TextureID
 	kButtonNormal,
 	kButtonSelected,
 	kButtonActivated,
+	kBullet,
+	kMissile,
+	kHealthRefill,
+	kMissileRefill,
+	kFireSpread,
+	kFireRate,
+	kFinishLine,
 	kNumTextures,
 };
