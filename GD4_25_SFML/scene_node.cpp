@@ -1,6 +1,7 @@
 #include "scene_node.hpp"
 #include "entity.hpp"
 #include "aircraft.hpp"
+#include "utility.hpp"
 
 SceneNode::SceneNode():m_children(), m_parent(nullptr)
 {
@@ -25,10 +26,10 @@ SceneNode::Ptr SceneNode::DetachChild(const SceneNode& node)
 	return result;
 }
 
-void SceneNode::Update(sf::Time dt)
+void SceneNode::Update(sf::Time dt, CommandQueue& commands)
 {
-	UpdateCurrent(dt);
-	UpdateChildren(dt);
+	UpdateCurrent(dt, commands);
+	UpdateChildren(dt, commands);
 }
 
 sf::Vector2f SceneNode::GetWorldPosition() const
@@ -71,16 +72,25 @@ void SceneNode::DrawBoundingRect(sf::RenderTarget& target, sf::RenderStates stat
 {
 }
 
+void SceneNode::CheckSceneCollision(SceneNode& scene_graph, std::set<Pair>& collision_pairs)
+{
+	CheckNodeCollision(scene_graph, collision_pairs);
+	for (Ptr& child : scene_graph.m_children)
+	{
+		CheckSceneCollision(*child, collision_pairs);
+	}
+}
+
 void SceneNode::UpdateCurrent(sf::Time dt, CommandQueue& commands)
 {
 	// Do nothing here
 }
 
-void SceneNode::UpdateChildren(sf::Time dt)
+void SceneNode::UpdateChildren(sf::Time dt, CommandQueue& commands)
 {
 	for (Ptr& child : m_children)
 	{
-		child->Update(dt);
+		child->Update(dt, commands);
 	}
 }
 
@@ -113,6 +123,18 @@ unsigned int SceneNode::GetCategory() const
 	return static_cast<unsigned int>(ReceiverCategories::kScene);
 }
 
+void SceneNode::CheckNodeCollision(SceneNode& node, std::set<Pair>& collision_pairs)
+{
+	if (this != &node && Collision(*this, node) && !IsDestroyed() && !node.IsDestroyed())
+	{
+		collision_pairs.insert(std::minmax(this, &node));
+	}
+	for (Ptr& child : m_children)
+	{
+		child->CheckNodeCollision(node, collision_pairs);
+	}
+}
+
 bool SceneNode::IsMarkedForRemoval() const
 {
 	return IsDestroyed();
@@ -123,3 +145,26 @@ bool SceneNode::IsDestroyed() const
 	return false;
 }
 
+void SceneNode::RemoveWrecks()
+{
+	auto wreck_field_begin = std::remove_if(m_children.begin(), m_children.end(), std::mem_fn(&SceneNode::IsMarkedForRemoval));
+	m_children.erase(wreck_field_begin, m_children.end());
+	std::for_each(m_children.begin(), m_children.end(), std::mem_fn(&SceneNode::RemoveWrecks));
+}
+
+float Distance(const SceneNode& lhs, const SceneNode& rhs)
+{
+	return Utility::Length(lhs.GetWorldPosition() - rhs.GetWorldPosition());
+}
+
+bool Collision(const SceneNode& lhs, const SceneNode& rhs)
+{
+	if(lhs.GetBoundingRect().findIntersection(rhs.GetBoundingRect()) != std::nullopt)
+	{ 
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}

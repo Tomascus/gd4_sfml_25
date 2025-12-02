@@ -28,6 +28,12 @@ private:
 	sf::FloatRect GetViewBounds() const;
 	sf::FloatRect GetBattleFieldBounds() const;
 
+	void GuideMissiles();
+
+	void HandleCollisions();
+
+	void DestroyEntitiesOutsideView();
+
 private:
 	struct SpawnPoint
 	{
@@ -55,5 +61,6 @@ private:
 	CommandQueue m_command_queue;
 
 	std::vector<SpawnPoint> m_enemy_spawn_points;
+	std::vector<Aircraft*> m_active_enemies;
 };
 

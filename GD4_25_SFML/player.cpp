@@ -115,5 +115,4 @@ bool Player::IsRealTimeAction(Action action)
     default:
         return false;
     }
-    return false;
 }

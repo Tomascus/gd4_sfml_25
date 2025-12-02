@@ -4,6 +4,9 @@
 #include "utility.hpp"
 #include "constants.hpp"
 #include "pickup_type.hpp"
+#include "projectile.hpp"
+#include "pickup.hpp"
+#include "projectile_type.hpp"
 
 
 namespace
@@ -25,8 +28,35 @@ TextureID ToTextureID(AircraftType type)
 	return TextureID::kEagle;
 }
 
-Aircraft::Aircraft(AircraftType type, const TextureHolder& textures, const FontHolder& fonts) : Entity(Table[static_cast<int>(type)].m_hitpoints), m_type(type), m_sprite(textures.Get(ToTextureID(type))), m_health_display(nullptr), m_distance_travelled(0.f), m_directions_index(0)
+Aircraft::Aircraft(AircraftType type, const TextureHolder& textures, const FontHolder& fonts) 
+	: Entity(Table[static_cast<int>(type)].m_hitpoints) 
+	, m_type(type) 
+	, m_sprite(textures.Get(Table[static_cast<int>(type)].m_texture))
+	, m_health_display(nullptr)
+	, m_missile_display(nullptr)
+	, m_distance_travelled(0.f) 
+	, m_directions_index(0)
+	, m_fire_rate(1)
+	, m_spread_level(1)
+	, m_is_firing(false)
+	, m_is_launching_missile(false)
+	, m_fire_countdown(sf::Time::Zero)
+	, m_missile_ammo(2)
+	, m_is_marked_for_removal(false)
 {
+	Utility::CentreOrigin(m_sprite);
+
+	m_fire_command.category = static_cast<int>(ReceiverCategories::kScene);
+	m_fire_command.action = [this, &textures](SceneNode& node, sf::Time dt)
+		{
+			CreateBullet(node, textures);
+		};
+
+	m_missile_command.category = static_cast<int>(ReceiverCategories::kScene);
+	m_missile_command.action = [this, &textures](SceneNode& node, sf::Time dt)
+		{
+			CreateProjectile(node, ProjectileType::kMissile, 0.f, 0.5f, textures);
+		};
 	sf::FloatRect bounds = m_sprite.getLocalBounds();
 	m_sprite.setOrigin(bounds.getCenter());
 	std::string* health = new std::string("");
@@ -146,7 +176,7 @@ void Aircraft::CreateProjectile(SceneNode& node, ProjectileType type, float x_of
 {
 	std::unique_ptr<Projectile> projectile(new Projectile(type, textures));
 	sf::Vector2f offset(x_offset * m_sprite.getGlobalBounds().size.x, y_offset * m_sprite.getGlobalBounds().size.y);
-	sf::Vector2f velocity(0, projectile->GetMaxSpeed);
+	sf::Vector2f velocity(0, projectile->GetMaxSpeed());
 
 	float sign = IsAllied() ? -1.f: 1.f;
 	projectile->setPosition(GetWorldPosition() + offset * sign);

@@ -2,6 +2,7 @@
 #include "texture_id.hpp"
 #include <SFML/System/Time.hpp>
 #include <functional>
+#include "aircraft.hpp"
 
 struct Direction
 {

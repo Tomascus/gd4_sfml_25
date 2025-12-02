@@ -4,18 +4,21 @@
 #include "command.hpp"
 #include "command_queue.hpp"
 
+#include <set>
+
 
 class SceneNode : public sf::Transformable, public sf::Drawable
 {
 public:
 	typedef std::unique_ptr<SceneNode> Ptr;
+	typedef std::pair<SceneNode*, SceneNode*> Pair;
 
 public:
 	SceneNode();
 	void AttachChild(Ptr child);
 	Ptr DetachChild(const SceneNode& node);
 
-	void Update(sf::Time dt);
+	void Update(sf::Time dt, CommandQueue& commands);
 
 	sf::Vector2f GetWorldPosition() const;
 	sf::Transform GetWorldTransform() const;
@@ -24,23 +27,29 @@ public:
 
 	virtual sf::FloatRect GetBoundingRect() const;
 	void DrawBoundingRect(sf::RenderTarget& target, sf::RenderStates states, sf::FloatRect& rect) const;
+	void CheckSceneCollision(SceneNode& scene_graph, std::set<Pair>& collision_pairs);
+	virtual unsigned int GetCategory() const;
 
 protected:
 	virtual void UpdateCurrent(sf::Time dt, CommandQueue& commands);
 
 private:
-	void UpdateChildren(sf::Time dt);
+	void UpdateChildren(sf::Time dt, CommandQueue& commands);
 
 	virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
 	virtual void DrawCurrent(sf::RenderTarget& target, sf::RenderStates states) const;
 	void DrawChildren(sf::RenderTarget& target, sf::RenderStates states) const;
-	virtual unsigned int GetCategory() const;
+	
 
+	void CheckNodeCollision(SceneNode& node, std::set<Pair>& collision_pairs);
 	virtual bool IsMarkedForRemoval() const;
 	virtual bool IsDestroyed() const;
+	void RemoveWrecks();
 
 private:
 	std::vector<Ptr> m_children;
 	SceneNode* m_parent;
 };
+float Distance(const SceneNode& lhs, const SceneNode& rhs);
+bool Collision(const SceneNode& lhs, const SceneNode& rhs);
 

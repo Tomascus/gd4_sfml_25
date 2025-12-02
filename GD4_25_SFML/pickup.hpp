@@ -6,6 +6,7 @@
 
 class Pickup : public Entity
 {
+public:
 	Pickup(PickupType type, const TextureHolder& textures);
 	virtual unsigned int GetCategory() const override;
 	void Apply(Aircraft& player);

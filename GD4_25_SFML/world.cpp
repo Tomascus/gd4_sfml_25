@@ -3,6 +3,8 @@
 #include <iostream>
 #include "state.hpp"
 #include <SFML/System/Angle.hpp>
+#include "Projectile.hpp"
+#include "pickup.hpp"
 
 World::World(sf::RenderWindow& window, FontHolder& font)
 	: m_window(window)
@@ -28,6 +30,9 @@ void World::Update(sf::Time dt)
 
 	m_player_aircraft->SetVelocity(0.f, 0.f);
 
+	DestroyEntitiesOutsideView();
+	GuideMissiles();
+
 	//Process commands from the scenegraph
 	while (!m_command_queue.IsEmpty())
 	{
@@ -35,9 +40,11 @@ void World::Update(sf::Time dt)
 	}
 	AdaptPlayerVelocity();
 
+	HandleCollisions();
+
 	SpawnEnemies();
 
-	m_scene_graph.Update(dt);
+	m_scene_graph.Update(dt, m_command_queue);
 	AdaptPlayerPosition();
 }
 
@@ -61,6 +68,15 @@ void World::LoadTextures()
 	m_textures.Load(TextureID::kEagle, "Media/Textures/Eagle.png");
 	m_textures.Load(TextureID::kRaptor, "Media/Textures/Raptor.png");
 	m_textures.Load(TextureID::kLandscape, "Media/Textures/Desert.png");
+	m_textures.Load(TextureID::kBullet, "Media/Textures/Bullet.png");
+	m_textures.Load(TextureID::kMissile, "Media/Textures/Missile.png");
+
+	m_textures.Load(TextureID::kHealthRefill, "Media/Textures/HealthRefill.png");
+	m_textures.Load(TextureID::kMissileRefill, "Media/Textures/MissileRefill.png");
+	m_textures.Load(TextureID::kFireSpread, "Media/Textures/FireSpread.png");
+	m_textures.Load(TextureID::kFireRate, "Media/Textures/FireRate.png");
+	m_textures.Load(TextureID::kFinishLine, "Media/Textures/FinishLine.png");
+
 }
 
 void World::BuildScene()
@@ -92,13 +108,13 @@ void World::BuildScene()
 	m_player_aircraft->SetVelocity(40.f, m_scroll_speed);
 	m_scene_layers[static_cast<int>(SceneLayers::kAir)]->AttachChild(std::move(leader));
 
-	std::unique_ptr<Aircraft> left_escort(new Aircraft(AircraftType::kRaptor, m_textures, m_fonts));
+	/*std::unique_ptr<Aircraft> left_escort(new Aircraft(AircraftType::kRaptor, m_textures, m_fonts));
 	left_escort->setPosition(sf::Vector2f(- 80.f, 50.f));
 	m_player_aircraft->AttachChild(std::move(left_escort));
 
 	std::unique_ptr<Aircraft> right_escort(new Aircraft(AircraftType::kRaptor, m_textures, m_fonts));
 	right_escort->setPosition(sf::Vector2f(80.f, 50.f));
-	m_player_aircraft->AttachChild(std::move(right_escort));
+	m_player_aircraft->AttachChild(std::move(right_escort));*/
 
 	AddEnemies();
 }
@@ -181,3 +197,119 @@ sf::FloatRect World::GetBattleFieldBounds() const
 	bounds.size.y += 100.f;
 	return bounds;
 }
+
+void World::GuideMissiles()
+{
+	//Target the closest enemy in the world
+	Command enemyCollector;
+	enemyCollector.category = static_cast<int>(ReceiverCategories::kEnemyAircraft);
+	enemyCollector.action = DerivedAction<Aircraft>([this](Aircraft& enemy, sf::Time)
+		{
+			if (!enemy.IsDestroyed())
+			{
+				m_active_enemies.emplace_back(&enemy);
+			}
+		});
+
+	Command missileGuider;
+	missileGuider.category = static_cast<int>(ReceiverCategories::kAlliedProjectile);
+	missileGuider.action = DerivedAction<Projectile>([this](Projectile& missile, sf::Time)
+		{
+			if (!missile.IsGuided())
+			{
+				return;
+			}
+
+			float min_distance = std::numeric_limits<float>::max();
+			Aircraft* closest_enemy = nullptr;
+
+			for (Aircraft* enemy : m_active_enemies)
+			{
+				float enemy_distance = Distance(missile, *enemy);
+				if (enemy_distance < min_distance)
+				{
+					closest_enemy = enemy;
+					min_distance = enemy_distance;
+				}
+			}
+			if (closest_enemy)
+			{
+				missile.GuideTowards(closest_enemy->GetWorldPosition());
+			}
+		});
+	m_command_queue.Push(enemyCollector);
+	m_command_queue.Push(missileGuider);
+	m_active_enemies.clear();
+}
+
+bool MatchesCategories(SceneNode::Pair& colliders, ReceiverCategories type1, ReceiverCategories type2)
+{
+	unsigned int category1 = colliders.first->GetCategory();
+	unsigned int category2 = colliders.second->GetCategory();
+
+	if (static_cast<int>(type1) & category1 && static_cast<int>(type2) & category2)
+	{
+		return true;
+	}
+	else if (static_cast<int>(type1) & category2 && static_cast<int>(type2) & category1)
+	{
+		std::swap(colliders.first, colliders.second);
+	}
+	else
+	{
+		return false;
+	}
+
+}
+
+void World::HandleCollisions()
+{
+	std::set<SceneNode::Pair> collision_pairs;
+	m_scene_graph.CheckSceneCollision(m_scene_graph, collision_pairs);
+
+	for (SceneNode::Pair pair : collision_pairs)
+	{
+		if (MatchesCategories(pair, ReceiverCategories::kPlayerAircraft, ReceiverCategories::kEnemyAircraft))
+		{
+			auto& player = static_cast<Aircraft&>(*pair.first);
+			auto& enemy = static_cast<Aircraft&>(*pair.second);
+			//Collision response
+			player.Damage(enemy.GetHitPoints());
+			enemy.Destroy();
+		}
+		else if (MatchesCategories(pair, ReceiverCategories::kPlayerAircraft, ReceiverCategories::kPickup))
+		{
+			auto& player = static_cast<Aircraft&>(*pair.first);
+			auto& pickup = static_cast<Pickup&>(*pair.second);
+			//Collision response
+			pickup.Apply(player);
+			pickup.Destroy();
+		}
+		else if (MatchesCategories(pair, ReceiverCategories::kPlayerAircraft, ReceiverCategories::kEnemyProjectile) || MatchesCategories(pair,ReceiverCategories::kEnemyAircraft, ReceiverCategories::kEnemyProjectile))
+		{
+			auto& aircraft = static_cast<Aircraft&>(*pair.first);
+			auto& projectile = static_cast<Projectile&>(*pair.second);
+			//Collision response
+			aircraft.Damage(projectile.GetDamage());
+			projectile.Destroy();
+		}
+	}
+}
+
+void World::DestroyEntitiesOutsideView()
+{
+	Command command;
+	command.category = static_cast<int>(ReceiverCategories::kEnemyAircraft) | static_cast<int>(ReceiverCategories::kProjectile);
+	command.action = DerivedAction<Entity>([this](Entity& e, sf::Time dt)
+	{
+		//Does the object intersect with the battlefield
+		if (GetBattleFieldBounds().findIntersection(e.GetBoundingRect()) == std::nullopt)
+		{
+			e.Destroy();
+		}
+	});
+	m_command_queue.Push(command);
+
+}
+
+

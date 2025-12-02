@@ -10,11 +10,13 @@ SettingsState::SettingsState(StateStack& stack, Context context)
     AddButtonLabel(Action::kMoveDown, 200.f, "Move Down", context);
     AddButtonLabel(Action::kMoveRight, 250.f, "Move Right", context);
     AddButtonLabel(Action::kMoveLeft, 300.f, "Move Left", context);
+    AddButtonLabel(Action::kBulletFire, 350.f, "Fire", context);
+    AddButtonLabel(Action::kMissileFire, 400.f, "Missile Fire", context);
 
     UpdateLabels();
 
 	auto back_button = std::make_shared<gui::Button>(*context.fonts, *context.textures);
-    back_button->setPosition(sf::Vector2f(80.f, 375.f));
+    back_button->setPosition(sf::Vector2f(80.f, 475.f));
     back_button->SetText("Back");
     back_button->SetCallback(std::bind(&SettingsState::RequestStackPop, this));
     m_gui_container.Pack(back_button);
