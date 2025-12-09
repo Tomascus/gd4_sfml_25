@@ -64,6 +64,16 @@ CommandQueue& World::GetCommandQueue()
 	return m_command_queue;
 }
 
+bool World::HasAlivePlayer() const
+{
+	return !m_player_aircraft->IsMarkedForRemoval();
+}
+
+bool World::HasPlayerReachedEnd() const
+{
+	return !m_world_bounds.contains(m_player_aircraft->getPosition());
+}
+
 void World::LoadTextures()
 {
 	m_textures.Load(TextureID::kEagle, "Media/Textures/Eagle.png");
@@ -100,6 +110,12 @@ void World::BuildScene()
 	std::unique_ptr<SpriteNode> background_sprite(new SpriteNode(texture, textureRect));
 	background_sprite->setPosition(sf::Vector2f(0, 0));
 	m_scene_layers[static_cast<int>(SceneLayers::kBackground)]->AttachChild(std::move(background_sprite));
+
+	//Add the finish line
+	sf::Texture& finish_texture = m_textures.Get(TextureID::kFinishLine);
+	std::unique_ptr<SpriteNode> finish_sprite(new SpriteNode(finish_texture));
+	finish_sprite->setPosition(sf::Vector2f(0.f, -76.f));
+	m_scene_layers[static_cast<int>(SceneLayers::kBackground)]->AttachChild(std::move(finish_sprite));
 
 	//Homework add the player's aircraft
 	//Add two Raptor escort planes that are 50 units behind the plane and 80 units either side of the player's plane

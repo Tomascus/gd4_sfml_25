@@ -15,6 +15,9 @@ public:
 
 	CommandQueue& GetCommandQueue();
 
+	bool HasAlivePlayer() const;
+	bool HasPlayerReachedEnd() const;
+
 private:
 	void LoadTextures();
 	void BuildScene();

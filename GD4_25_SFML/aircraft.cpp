@@ -7,6 +7,7 @@
 #include "projectile.hpp"
 #include "pickup.hpp"
 #include "projectile_type.hpp"
+#include <iostream>
 
 
 namespace
@@ -271,13 +272,17 @@ bool Aircraft::IsAllied() const
 	return m_type == AircraftType::kEagle;
 }
 
-void Aircraft::CreatePickup(SceneNode& node, const TextureHolder& textures) const
+void Aircraft::CreatePickup(SceneNode& node, const TextureHolder& textures)
 {
-	auto type = static_cast<PickupType>(Utility::RandomInt(static_cast<int>(PickupType::kPickupCount)));
-	std::unique_ptr<Pickup> pickup(new Pickup(type, textures));
-	pickup->setPosition(GetWorldPosition());
-	pickup->SetVelocity(0.f, 0.f);
-	node.AttachChild(std::move(pickup));
+	if (!m_spawned_pickup)
+	{
+		auto type = static_cast<PickupType>(Utility::RandomInt(static_cast<int>(PickupType::kPickupCount)));
+		std::unique_ptr<Pickup> pickup(new Pickup(type, textures));
+		pickup->setPosition(GetWorldPosition());
+		pickup->SetVelocity(0.f, 0.f);
+		node.AttachChild(std::move(pickup));
+	}
+	m_spawned_pickup = true;
 }
 
 void Aircraft::CheckPickupDrop(CommandQueue& commands)
@@ -286,5 +291,4 @@ void Aircraft::CheckPickupDrop(CommandQueue& commands)
 	{
 		commands.Push(m_drop_pickup_command);
 	}
-	m_spawned_pickup = true;
 }

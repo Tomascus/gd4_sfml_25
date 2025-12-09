@@ -82,6 +82,16 @@ sf::Keyboard::Scancode Player::GetAssignedKey(Action action) const
     return sf::Keyboard::Scancode::Unknown;
 }
 
+void Player::SetMissionStatus(MissionStatus status)
+{
+    m_current_mission_status = status;
+}
+
+MissionStatus Player::GetMissionStatus() const
+{
+    return m_current_mission_status;
+}
+
 void Player::InitialiseActions()
 {
     const float kPlayerSpeed = 200.f;
