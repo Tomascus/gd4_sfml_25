@@ -43,12 +43,13 @@ Aircraft::Aircraft(AircraftType type, const TextureHolder& textures, const FontH
 	, m_fire_countdown(sf::Time::Zero)
 	, m_missile_ammo(2)
 	, m_is_marked_for_removal(false)
+	, m_spawned_pickup(false)
 {
 	Utility::CentreOrigin(m_sprite);
 
 	m_fire_command.category = static_cast<int>(ReceiverCategories::kScene);
 	m_fire_command.action = [this, &textures](SceneNode& node, sf::Time dt)
-		{
+		{		
 			CreateBullet(node, textures);
 		};
 
@@ -57,25 +58,34 @@ Aircraft::Aircraft(AircraftType type, const TextureHolder& textures, const FontH
 		{
 			CreateProjectile(node, ProjectileType::kMissile, 0.f, 0.5f, textures);
 		};
-	sf::FloatRect bounds = m_sprite.getLocalBounds();
-	m_sprite.setOrigin(bounds.getCenter());
+	m_drop_pickup_command.category = static_cast<int>(ReceiverCategories::kScene);
+	m_drop_pickup_command.action = [this, &textures](SceneNode& node, sf::Time dt)
+		{
+			CreatePickup(node, textures);
+		};
+
 	std::string* health = new std::string("");
 	std::unique_ptr<TextNode> health_display(new TextNode(fonts, *health));
 	m_health_display = health_display.get();
 	AttachChild(std::move(health_display));
+
+	if (Aircraft::GetCategory() == static_cast<int>(ReceiverCategories::kPlayerAircraft))
+	{
+		std::string* missile_ammo = new std::string("");
+		std::unique_ptr<TextNode> missile_display(new TextNode(fonts, *missile_ammo));
+		m_missile_display = missile_display.get();
+		AttachChild(std::move(missile_display));
+	}
 	UpdateTexts();
 }
 
 unsigned int Aircraft::GetCategory() const
 {
-	switch (m_type)
+	if (IsAllied())
 	{
-	case AircraftType::kEagle:
 		return static_cast<unsigned int>(ReceiverCategories::kPlayerAircraft);
-	default:
-		return static_cast<unsigned int>(ReceiverCategories::kEnemyAircraft);
 	}
-	return 0;
+	return static_cast<unsigned int>(ReceiverCategories::kEnemyAircraft);
 }
 
 void Aircraft::IncreaseFireRate()
@@ -104,6 +114,19 @@ void Aircraft::UpdateTexts()
 	m_health_display->SetString(std::to_string(GetHitPoints()) + "HP");
 	m_health_display->setPosition(sf::Vector2f(0.f, 50.f));
 	m_health_display->setRotation(-getRotation());
+
+	if (m_missile_display)
+	{
+		m_missile_display->setPosition(sf::Vector2f(0.f, 70.f));
+		if (m_missile_ammo == 0)
+		{
+			m_missile_display->SetString("");
+		}
+		else
+		{
+			m_missile_display->SetString("M: " + std::to_string(m_missile_ammo));
+		}
+	}
 }
 
 void Aircraft::UpdateMovementPattern(sf::Time dt)
@@ -205,6 +228,8 @@ void Aircraft::UpdateCurrent(sf::Time dt, CommandQueue& commands)
 	if (IsDestroyed())
 	{
 		CheckPickupDrop(commands);
+		m_is_marked_for_removal = true;
+		return;
 	}
 	Entity::UpdateCurrent(dt, commands);
 	UpdateTexts();
@@ -257,9 +282,9 @@ void Aircraft::CreatePickup(SceneNode& node, const TextureHolder& textures) cons
 
 void Aircraft::CheckPickupDrop(CommandQueue& commands)
 {
-	if (!IsAllied() && Utility::RandomInt(kPickupDropChance) == 0)
+	if (!IsAllied() && Utility::RandomInt(kPickupDropChance) == 0 && !m_spawned_pickup)
 	{
 		commands.Push(m_drop_pickup_command);
 	}
-
+	m_spawned_pickup = true;
 }

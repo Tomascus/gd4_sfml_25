@@ -3,7 +3,7 @@
 #include "aircraft.hpp"
 #include "utility.hpp"
 
-SceneNode::SceneNode():m_children(), m_parent(nullptr)
+SceneNode::SceneNode(ReceiverCategories category):m_children(), m_parent(nullptr), m_default_category(category)
 {
 }
 
@@ -70,6 +70,13 @@ sf::FloatRect SceneNode::GetBoundingRect() const
 
 void SceneNode::DrawBoundingRect(sf::RenderTarget& target, sf::RenderStates states, sf::FloatRect& rect) const
 {
+	sf::RectangleShape shape;
+	shape.setPosition(sf::Vector2f(rect.position.x, rect.position.y));
+	shape.setSize(sf::Vector2f(rect.size.x, rect.size.y));
+	shape.setFillColor(sf::Color::Transparent);
+	shape.setOutlineColor(sf::Color::Green);
+	shape.setOutlineThickness(1.f);
+	target.draw(shape);
 }
 
 void SceneNode::CheckSceneCollision(SceneNode& scene_graph, std::set<Pair>& collision_pairs)

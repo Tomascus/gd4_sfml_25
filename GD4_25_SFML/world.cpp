@@ -11,9 +11,9 @@ World::World(sf::RenderWindow& window, FontHolder& font)
 	, m_camera(window.getDefaultView())
 	, m_textures()
 	, m_fonts(font)
-	, m_scene_graph()
+	, m_scene_graph(ReceiverCategories::kNone)
 	, m_scene_layers()
-	, m_world_bounds(sf::Vector2f(0.f, 0.f), sf::Vector2f(m_camera.getSize().x, 1000.f))
+	, m_world_bounds(sf::Vector2f(0.f, 0.f), sf::Vector2f(m_camera.getSize().x, 3000.f))
 	, m_spawn_position(m_camera.getSize().x / 2.f, m_world_bounds.size.y - m_camera.getSize().y/2.f)
 	, m_scroll_speed(-100.f)
 	, m_player_aircraft(nullptr)
@@ -41,6 +41,7 @@ void World::Update(sf::Time dt)
 	AdaptPlayerVelocity();
 
 	HandleCollisions();
+	m_scene_graph.RemoveWrecks();
 
 	SpawnEnemies();
 
@@ -84,7 +85,8 @@ void World::BuildScene()
 	//Initialise the different layers
 	for (int i = 0; i < static_cast<int>(SceneLayers::kLayerCount); i++)
 	{
-		SceneNode::Ptr layer(new SceneNode());
+		ReceiverCategories category = (i == static_cast<int>(SceneLayers::kAir)) ? ReceiverCategories::kScene : ReceiverCategories::kNone;
+		SceneNode::Ptr layer(new SceneNode(category));
 		m_scene_layers[i] = layer.get();
 		m_scene_graph.AttachChild(std::move(layer));
 	}
@@ -103,7 +105,6 @@ void World::BuildScene()
 	//Add two Raptor escort planes that are 50 units behind the plane and 80 units either side of the player's plane
 	std::unique_ptr<Aircraft> leader(new Aircraft(AircraftType::kEagle, m_textures, m_fonts));
 	m_player_aircraft = leader.get();
-	std::cout << m_spawn_position.x << m_spawn_position.y << std::endl;
 	m_player_aircraft->setPosition(m_spawn_position);
 	m_player_aircraft->SetVelocity(40.f, m_scroll_speed);
 	m_scene_layers[static_cast<int>(SceneLayers::kAir)]->AttachChild(std::move(leader));
@@ -247,13 +248,14 @@ bool MatchesCategories(SceneNode::Pair& colliders, ReceiverCategories type1, Rec
 	unsigned int category1 = colliders.first->GetCategory();
 	unsigned int category2 = colliders.second->GetCategory();
 
-	if (static_cast<int>(type1) & category1 && static_cast<int>(type2) & category2)
+	if ((static_cast<int>(type1) & category1) && (static_cast<int>(type2) & category2))
 	{
 		return true;
 	}
-	else if (static_cast<int>(type1) & category2 && static_cast<int>(type2) & category1)
+	else if ((static_cast<int>(type1) & category2) && (static_cast<int>(type2) & category1))
 	{
 		std::swap(colliders.first, colliders.second);
+		return true;
 	}
 	else
 	{
@@ -285,7 +287,7 @@ void World::HandleCollisions()
 			pickup.Apply(player);
 			pickup.Destroy();
 		}
-		else if (MatchesCategories(pair, ReceiverCategories::kPlayerAircraft, ReceiverCategories::kEnemyProjectile) || MatchesCategories(pair,ReceiverCategories::kEnemyAircraft, ReceiverCategories::kEnemyProjectile))
+		else if (MatchesCategories(pair, ReceiverCategories::kPlayerAircraft, ReceiverCategories::kEnemyProjectile) || MatchesCategories(pair,ReceiverCategories::kEnemyAircraft, ReceiverCategories::kAlliedProjectile))
 		{
 			auto& aircraft = static_cast<Aircraft&>(*pair.first);
 			auto& projectile = static_cast<Projectile&>(*pair.second);

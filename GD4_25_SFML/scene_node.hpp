@@ -14,7 +14,7 @@ public:
 	typedef std::pair<SceneNode*, SceneNode*> Pair;
 
 public:
-	SceneNode();
+	SceneNode(ReceiverCategories cateogry = ReceiverCategories::kNone);
 	void AttachChild(Ptr child);
 	Ptr DetachChild(const SceneNode& node);
 
@@ -29,6 +29,7 @@ public:
 	void DrawBoundingRect(sf::RenderTarget& target, sf::RenderStates states, sf::FloatRect& rect) const;
 	void CheckSceneCollision(SceneNode& scene_graph, std::set<Pair>& collision_pairs);
 	virtual unsigned int GetCategory() const;
+	void RemoveWrecks();
 
 protected:
 	virtual void UpdateCurrent(sf::Time dt, CommandQueue& commands);
@@ -44,11 +45,12 @@ private:
 	void CheckNodeCollision(SceneNode& node, std::set<Pair>& collision_pairs);
 	virtual bool IsMarkedForRemoval() const;
 	virtual bool IsDestroyed() const;
-	void RemoveWrecks();
+	
 
 private:
 	std::vector<Ptr> m_children;
 	SceneNode* m_parent;
+	ReceiverCategories m_default_category;
 };
 float Distance(const SceneNode& lhs, const SceneNode& rhs);
 bool Collision(const SceneNode& lhs, const SceneNode& rhs);

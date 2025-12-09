@@ -11,6 +11,7 @@ public:
 	virtual unsigned int GetCategory() const override;
 	void Apply(Aircraft& player);
 	virtual void DrawCurrent(sf::RenderTarget& target, sf::RenderStates states) const;
+	virtual sf::FloatRect GetBoundingRect() const;
 
 private:
 	PickupType m_type;

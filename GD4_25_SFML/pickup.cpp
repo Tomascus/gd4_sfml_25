@@ -29,3 +29,8 @@ void Pickup::DrawCurrent(sf::RenderTarget& target, sf::RenderStates states) cons
 {
     target.draw(m_sprite, states);
 }
+
+sf::FloatRect Pickup::GetBoundingRect() const
+{
+    return GetWorldTransform().transformRect(m_sprite.getGlobalBounds());
+}
